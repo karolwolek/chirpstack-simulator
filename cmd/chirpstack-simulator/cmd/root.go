@@ -11,8 +11,11 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
-var version string
+var (
+	cfgFile   string
+	version   string
+	terminate bool
+)
 
 // Execute executes the root command.
 func Execute(v string) {
@@ -35,9 +38,11 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.PersistentFlags().StringVarP(&cfgFile, "config", "c", "", "path to configuration file (optional)")
-	rootCmd.PersistentFlags().Int("log-level", 4, "debug=5, info=4, error=2, fatal=1, panic=0")
 
+	rootCmd.PersistentFlags().Int("log-level", 4, "debug=5, info=4, error=2, fatal=1, panic=0")
 	viper.BindPFlag("general.log_level", rootCmd.PersistentFlags().Lookup("log-level"))
+
+	runCmd.Flags().BoolVarP(&terminate, "terminate", "t", true, "terminate process after simulation has ended")
 
 	viper.SetDefault("application_server.api.server", "127.0.0.1:8080")
 	viper.SetDefault("application_server.integration.mqtt.server", "tcp://127.0.0.1:1883")

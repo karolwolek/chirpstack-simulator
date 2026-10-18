@@ -34,7 +34,7 @@ If no file is provided, config payload will be used and no further protocol vali
 	RunE: run,
 }
 
-func run(cnd *cobra.Command, args []string) error {
+func run(cmd *cobra.Command, args []string) error {
 
 	tasks := []func(context.Context, *sync.WaitGroup) error{
 		setLogLevel,
@@ -58,17 +58,22 @@ func run(cnd *cobra.Command, args []string) error {
 
 	exitChan := make(chan struct{})
 	sigChan := make(chan os.Signal)
+
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-	<-sigChan
-	go func() {
+
+	if !terminate {
+		<-sigChan
 		cancel()
+	}
+
+	go func() {
 		wg.Wait()
 		exitChan <- struct{}{}
 	}()
-	cancel()
+
 	select {
-	case <-exitChan:
-	case s := <-sigChan:
+	case <-exitChan: // gracefull shutdown
+	case s := <-sigChan: // force shutdown
 		log.WithField("signal", s).Info("signal received, terminating")
 	}
 
