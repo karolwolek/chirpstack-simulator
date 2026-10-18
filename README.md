@@ -7,13 +7,19 @@ created on starting the simulation.
 
 This project has been developed together with [TWTG](https://www.twtg.io/).
 
+## About fork
+
+This repository was forked for the purpose of development of [loris](https://github.com/zpi-loris/loris)
+university project which is using custom protocol buffers. It allows to embedd
+payload according to projects schema, using JSON encoded files.
+
 ## Building
 
 The recommended way to compile the simulator code is using [Docker Compose](https://docs.docker.com/compose/).
 Example:
 
 ```bash
-docker-compose run --rm chirpstack-simulator make clean build
+docker compose run --rm chirpstack-simulator make clean build
 ```
 
 The binary will be located under `build/chirpstack-simulator`.
@@ -108,19 +114,21 @@ tenant_id="PUT_YOUR_TENANT_ID_HERE"
 #
 # This defines the duration of the simulation. If set to '0s', the simulation
 # will run until terminated.
-duration="5m"
+# duration="10m"
+duration="3s"
 
 # Activation time.
 #
 # This is the time that the simulator takes to activate the devices. This
 # value must be less than the simulator duration.
-activation_time="1m"
+# activation_time="1m"
+activation_time="1s"
 
   # Device configuration.
   [simulator.device]
 
   # Number of devices to simulate.
-  count=1000
+  count=1
 
   # Uplink interval.
   uplink_interval="5m"
@@ -144,10 +152,10 @@ activation_time="1m"
   [simulator.gateway]
 
   # Min number of receiving gateways.
-  min_count=3
+  min_count=1
 
   # Max number of receiving gateways.
-  max_count=5
+  max_count=3
 
   # Event topic template.
   event_topic_template="eu868/gateway/{{ .GatewayID }}/event/{{ .Event }}"
@@ -178,16 +186,27 @@ bind="0.0.0.0:9000"
 To start the simulator, execute the following command:
 
 ```bash
-./build/chirpstack-simulator -c chirpstack-simulator.toml
+./build/chirpstack-simulator run -c chirpstack-simulator.toml
 ```
 
+> [!IMPORTANT]
+>
+> Without specifying any positonal arguments, **the config payload will be used**.
+> In order to use **loris** protocol buffers compatible payload, please provide
+> file pointing to the example json encoded protobuf payload. Examples are
+> in `examples/payload/*.json`
+
 When a duration has been configured, then the simulation will stop after
-the given interval. Note that this does not terminate the process! This makes
-it possible to still read Prometheus metrics after the simulation has been
-completed.
+the given interval. It will terminate the process then, by default.
+
+> [!NOTE]
+>
+> After providing flag `--terminate=false` it possible to still read Prometheus
+> metrics after the simulation has been completed, because the underlying process
+> will not terminate, only the simulation.
 
 Regardless if a duration has been configured or not, the simulator can be
-terminated. When sending an interrupt signal once, the simulation will be
+terminated forcely. When sending an interrupt signal once, the simulation will be
 terminated and the simulator will clean up the created gateways, devices,
 application and device-profile. When sending an interrupt for the second time,
 the simulator will be terminated immediately.
@@ -197,12 +216,12 @@ the simulator will be terminated immediately.
 The ChirpStack Simulator provides various metrics that can be collected using
 [Prometheus](https://prometheus.io/) and visualized using [Grafana](https://grafana.com/).
 
-* `device_uplink_count`: The number of uplinks sent by the devices
-* `device_join_request_count`: The number of join-requests sent by the devices
-* `device_join_accept_count`: The number of join-accepts received by the devices
-* `application_uplink_count`: The number of uplinks published by the application integration
-* `gateway_uplink_count`: The number of uplinks sent by the gateways
-* `gateway_downlink_count`: The number of downlinks received by the gateways
+- `device_uplink_count`: The number of uplinks sent by the devices
+- `device_join_request_count`: The number of join-requests sent by the devices
+- `device_join_accept_count`: The number of join-accepts received by the devices
+- `application_uplink_count`: The number of uplinks published by the application integration
+- `gateway_uplink_count`: The number of uplinks sent by the gateways
+- `gateway_downlink_count`: The number of downlinks received by the gateways
 
 ## License
 
