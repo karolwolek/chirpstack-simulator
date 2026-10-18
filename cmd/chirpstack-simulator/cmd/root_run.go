@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"encoding/hex"
 	"net/http"
 	"os"
 	"os/signal"
@@ -70,21 +71,25 @@ func parseFilePayload(args []string) func(context.Context, *sync.WaitGroup) erro
 			return nil
 		}
 
-		in, err := os.ReadFile(args[0])
+		file := args[0]
+		in, err := os.ReadFile(file)
 		if err != nil {
-			return errors.Wrap(err, "unable to read file "+args[0])
+			return errors.Wrap(err, "unable to read file "+file)
 		}
+
 		var message loris_payload.Message
 		if err := protojson.Unmarshal(in, &message); err != nil {
 			return errors.Wrap(err, "payload file is not using loris protoco")
 		}
 
 		out, err := proto.Marshal(&message)
-
-		// tutaj się nie powinno już nic zadziać
 		if err != nil {
 			panic(err)
 		}
+
+		log.WithFields(
+			log.Fields{"File": file, "hex": hex.Dump(out)},
+		).Info("successfuly encoded")
 
 		for _, c := range config.C.Simulator {
 			c.Device.Payload = out
