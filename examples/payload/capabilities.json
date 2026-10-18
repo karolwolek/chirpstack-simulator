@@ -1,0 +1,36 @@
+{
+  "type": "MESSAGE_TYPE_CAPABILITES",
+  "capabilites": {
+    "deviceName": "Some device",
+    "sensors": [
+      {
+        "id": 10,
+        "name": "Some Sensor",
+        "description": "This sensor shows some data",
+        "valueType": "VALUE_TYPE_NUMERIC",
+        "unit": "km"
+      },
+      {
+        "id": 10,
+        "name": "Some Sensor",
+        "description": "This sensor shows some data",
+        "valueType": "VALUE_TYPE_NUMERIC",
+        "unit": "km"
+      }
+    ],
+    "functions": [
+      {
+        "id": 10,
+        "name": "Some Function",
+        "description": "This function does some stuff",
+        "argType": "FUNC_ARG_TYPE_VOID"
+      },
+      {
+        "id": 10,
+        "name": "Some Function",
+        "description": "This function does some stuff",
+        "argType": "FUNC_ARG_TYPE_VOID"
+      }
+    ]
+  }
+}

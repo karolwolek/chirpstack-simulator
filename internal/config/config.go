@@ -4,8 +4,12 @@ import (
 	"time"
 )
 
+import ()
+
 // Version defines the version.
 var Version string
+
+type HexBytes []byte
 
 // Config defines the configuration.
 type Config struct {
@@ -48,7 +52,7 @@ type Config struct {
 			Count           int           `mapstructure:"count"`
 			UplinkInterval  time.Duration `mapstructure:"uplink_interval"`
 			FPort           uint8         `mapstructure:"f_port"`
-			Payload         string        `mapstructure:"payload"`
+			Payload         HexBytes      `mapstructure:"payload"`
 			Frequency       int           `mapstructure:"frequency"`
 			Bandwidth       int           `mapstructure:"bandwidth"`
 			SpreadingFactor int           `mapstructure:"spreading_factor"`

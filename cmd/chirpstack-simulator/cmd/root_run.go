@@ -8,21 +8,26 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/golang/protobuf/proto"
 	"github.com/pkg/errors"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/brocaar/chirpstack-simulator/internal/as"
 	"github.com/brocaar/chirpstack-simulator/internal/config"
+	loris_payload "github.com/brocaar/chirpstack-simulator/internal/loris-payload"
 	"github.com/brocaar/chirpstack-simulator/internal/ns"
 	"github.com/brocaar/chirpstack-simulator/internal/simulator"
 )
 
 func run(cnd *cobra.Command, args []string) error {
+
 	tasks := []func(context.Context, *sync.WaitGroup) error{
 		setLogLevel,
 		printStartMessage,
+		parseFilePayload(args),
 		setupASAPIClient,
 		setupASIntegration,
 		setupNSIntegration,
@@ -56,6 +61,37 @@ func run(cnd *cobra.Command, args []string) error {
 	}
 
 	return nil
+}
+
+func parseFilePayload(args []string) func(context.Context, *sync.WaitGroup) error {
+	return func(ctx context.Context, wg *sync.WaitGroup) error {
+
+		if len(args) == 0 {
+			return nil
+		}
+
+		in, err := os.ReadFile(args[0])
+		if err != nil {
+			return errors.Wrap(err, "unable to read file "+args[0])
+		}
+		var message loris_payload.Message
+		if err := protojson.Unmarshal(in, &message); err != nil {
+			return errors.Wrap(err, "payload file is not using loris protoco")
+		}
+
+		out, err := proto.Marshal(&message)
+
+		// tutaj się nie powinno już nic zadziać
+		if err != nil {
+			panic(err)
+		}
+
+		for _, c := range config.C.Simulator {
+			c.Device.Payload = out
+		}
+
+		return nil
+	}
 }
 
 func setLogLevel(ctx context.Context, wg *sync.WaitGroup) error {
@@ -108,6 +144,5 @@ func startSimulator(ctx context.Context, wg *sync.WaitGroup) error {
 	if err := simulator.Start(ctx, wg, config.C); err != nil {
 		return errors.Wrap(err, "start simulator error")
 	}
-
 	return nil
 }

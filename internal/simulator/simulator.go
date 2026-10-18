@@ -3,7 +3,6 @@ package simulator
 import (
 	"context"
 	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	mrand "math/rand"
 	"os"
@@ -36,11 +35,6 @@ func Start(ctx context.Context, wg *sync.WaitGroup, c config.Config) error {
 
 		wg.Add(1)
 
-		pl, err := hex.DecodeString(c.Device.Payload)
-		if err != nil {
-			return errors.Wrap(err, "decode payload error")
-		}
-
 		sim := simulation{
 			ctx:                  ctx,
 			wg:                   wg,
@@ -49,7 +43,7 @@ func Start(ctx context.Context, wg *sync.WaitGroup, c config.Config) error {
 			activationTime:       c.ActivationTime,
 			uplinkInterval:       c.Device.UplinkInterval,
 			fPort:                c.Device.FPort,
-			payload:              pl,
+			payload:              c.Device.Payload,
 			frequency:            c.Device.Frequency,
 			bandwidth:            c.Device.Bandwidth,
 			spreadingFactor:      c.Device.SpreadingFactor,

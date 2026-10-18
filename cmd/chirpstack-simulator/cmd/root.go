@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 
 	"github.com/brocaar/chirpstack-simulator/internal/config"
+	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -27,6 +28,7 @@ var rootCmd = &cobra.Command{
 	Long: `ChirpStack Simulator simulates device uplinks
 	> documentation & support: https://www.chirpstack.io/
 	> source & copyright information: https://github.com/brocaar/chirpstack-simulator/`,
+	Args: cobra.ExactArgs(1),
 	RunE: run,
 }
 
@@ -51,7 +53,7 @@ func initConfig() {
 	config.Version = version
 
 	if cfgFile != "" {
-		b, err := ioutil.ReadFile(cfgFile)
+		b, err := os.ReadFile(cfgFile)
 		if err != nil {
 			log.WithError(err).WithField("config", cfgFile).Fatal("error loading config file")
 		}
@@ -73,7 +75,15 @@ func initConfig() {
 		}
 	}
 
-	if err := viper.Unmarshal(&config.C); err != nil {
+	opts := viper.DecodeHook(
+		mapstructure.ComposeDecodeHookFunc(
+			config.DecodeHexPayload(),
+			mapstructure.StringToTimeDurationHookFunc(),
+			mapstructure.StringToSliceHookFunc(","),
+		),
+	)
+
+	if err := viper.Unmarshal(&config.C, opts); err != nil {
 		log.WithError(err).Fatal("unmarshal config error")
 	}
 }
