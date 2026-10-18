@@ -23,6 +23,17 @@ import (
 	"github.com/brocaar/chirpstack-simulator/internal/simulator"
 )
 
+var runCmd = &cobra.Command{
+	Use:   "run [file.json]",
+	Short: "Run simulator",
+	Long: `Run simulator optionally providing paylaod to parse from json file
+
+File payload is being parsed according to the **loris** protocol.
+If no file is provided, config payload will be used and no further protocol validation will be performed`,
+	Args: cobra.MaximumNArgs(1),
+	RunE: run,
+}
+
 func run(cnd *cobra.Command, args []string) error {
 
 	tasks := []func(context.Context, *sync.WaitGroup) error{

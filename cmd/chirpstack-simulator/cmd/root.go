@@ -23,13 +23,12 @@ func Execute(v string) {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "chirpstack-simulator",
+	Use:   "chirpstack-simulator [file.json]",
 	Short: "ChirpStack Simulator",
 	Long: `ChirpStack Simulator simulates device uplinks
-	> documentation & support: https://www.chirpstack.io/
-	> source & copyright information: https://github.com/brocaar/chirpstack-simulator/`,
-	Args: cobra.ExactArgs(1),
-	RunE: run,
+			> documentation & support: https://www.chirpstack.io/
+			> source & copyright information: https://github.com/brocaar/chirpstack-simulator/
+	`,
 }
 
 func init() {
@@ -47,6 +46,7 @@ func init() {
 
 	rootCmd.AddCommand(versionCmd)
 	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(runCmd)
 }
 
 func initConfig() {
