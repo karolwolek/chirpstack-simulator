@@ -99,7 +99,7 @@ func parseFilePayload(args []string) func(context.Context, *sync.WaitGroup) erro
 		}
 
 		log.WithFields(
-			log.Fields{"File": file, "hex": hex.Dump(out)},
+			log.Fields{"File": file, "hex": hex.EncodeToString(out)},
 		).Info("successfuly encoded")
 
 		for _, c := range config.C.Simulator {
