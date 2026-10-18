@@ -1,0 +1,1 @@
+{ "type": "MESSAGE_TYPE_REPORT", "report": { "sensorId": 10, "bool": true } }

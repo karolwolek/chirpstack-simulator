@@ -1,0 +1,4 @@
+{
+  "type": "MESSAGE_TYPE_CALL",
+  "call": { "functionId": 10, "int": 10, "wakeAfterSecs": 500 }
+}
